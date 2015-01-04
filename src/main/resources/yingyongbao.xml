@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks host="http://android.myapp.com/" boot="catalog">
+
+    <task id="catalog" uri="myapp/category.htm?orgame=2">
+        <blocks select=".menu-junior a" task-ref="apps">
+            <exclude vtype="text">全部游戏</exclude>
+            <prop name="subCatalog" vtype="text"/>
+            <prop name="from" vtype="const" const="yingyongbao"/>
+            <context name="catalogPageUri" attr="href" vtype="attr"/>
+        </blocks>
+    </task>
+
+    <task id="apps" uri="/myapp/cate/appList.htm${catalogPageUri}&amp;pageSize=-1&amp;pageContext=0" thread="true" new-client="true" data-type="json">
+        <blocks select="$.obj" task-ref="detail">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" select="$.appName"/>
+            <prop name="logo" select="$.iconUrl"/>
+            <prop name="version" select="$.versionName"/>
+            <prop name="uri" select="$.apkUrl"/>
+            <prop name="times" select="$.appDownCount"/>
+            <prop name="stars" select="$.appRatingInfo.averageRating"/>
+            <prop name="company" select="$.authorName"/>
+            <prop name="datetime" select="$.apkPublishTime"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="detailPageUri" select="$.pkgName"/>
+        </blocks>
+    </task>
+
+    <task id="detail" uri="myapp/detail.htm?apkName=${detailPageUri}">
+        <blocks select=".det-app-data-info">
+            <prop name="description" vtype="text"/>
+            <prop-output target="/data/yingyongbao/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
+            </prop-output>
+        </blocks>
+        <blocks select="#J_PicTurnImgBox img" task-ref="comment">
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="data-src" vtype="attr"/>
+            <prop-output target="/data/yingyongbao/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+    </task>
+
+    <task id="comment" uri="myapp/app/comment.htm?apkName=${detailPageUri}" data-type="json">
+        <blocks select="$.obj.commentDetails">
+            <prop name="commentId" vtype="uuid"/>
+            <prop name="user" select="$.nickName"/>
+            <prop name="comment" select="$.content"/>
+            <prop name="commentTime" select="$.createdTime"/>
+            <prop-output target="/data/yingyongbao/${subCatalog}/appcomments.sql" newline="true">
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${sql:comment}','${commentTime}');
+            </prop-output>
+        </blocks>
+    </task>
+
+</tasks>

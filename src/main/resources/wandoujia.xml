@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks host="http://www.wandoujia.com/" boot="catalog">
+
+    <task id="catalog" uri="tag/game">
+        <blocks select=".tag-box>li">
+            <prop name="catalog" select=">a" vtype="text"/>
+            <prop name="from" vtype="const" const="wandoujia"/>
+            <blocks select=".child-cate a" task-ref="apps">
+                <prop name="subCatalog" vtype="text"/>
+                <context name="subCatalog" vtype="text"/>
+            </blocks>
+        </blocks>
+    </task>
+
+    <task id="apps" uri="http://apps.wandoujia.com/api/v1/apps?ads_count=0&amp;tag=${url:subCatalog}&amp;max=${appPageNum}&amp;start=${appNumStart}&amp;opt_fields=apps.title,apps.packageName,apps.installedCountStr&amp;callback=jQuery18301876741903834045_1420354559567&amp;_=1420356151513"
+          until-empty="$.apps" step="50" step-var="appPageNum" start="0" start-var="appNumStart" max="1000" data-type="json"
+          subStart="([" subEnd="])" thread="true" new-client="true">
+        <blocks select="$.apps" task-ref="detail,comment">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" select="$.title" attr="data_name" vtype="attr"/>
+            <prop name="times" select="$.installedCountStr" vtype="text"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="detailPageUri" select="$.packageName"/>
+        </blocks>
+    </task>
+
+    <task id="detail" uri="apps/${detailPageUri}">
+        <blocks select=".app-icon img">
+            <prop name="logo" attr="src" vtype="attr"/>
+        </blocks>
+        <blocks select=".download-wp">
+            <prop name="uri" select=".install-btn" attr="href" vtype="attr"/>
+        </blocks>
+        <blocks select=".infos-list">
+            <prop name="version" select="dd" index="3" vtype="text"/>
+            <prop name="company" select=".dev-sites" vtype="text"/>
+            <prop name="datetime" select="time" vtype="text"/>
+        </blocks>
+        <blocks select=".desc-info">
+            <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
+            <prop name="description" select="[itemprop=description]" vtype="text"/>
+            <prop-output target="/data/wandoujia/${catalog}/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${catalog}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${description}','${from}','${createTime}');
+            </prop-output>
+        </blocks>
+        <blocks select=".screenshot img">
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="src" vtype="attr"/>
+            <prop-output target="/data/wandoujia/${catalog}/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+    </task>
+
+    <task id="comment" uri="http://apps.wandoujia.com/api/v1/comments/primary?packageName=${detailPageUri}&amp;callback=jQuery183038657043129205704_1420365271064&amp;_=1420365272135"
+          data-type="json" subStart="4(" subEnd=");">
+        <blocks select="$.superiorComments">
+            <prop name="commentId" vtype="uuid"/>
+            <prop name="user" select="$.author.name"/>
+            <prop name="comment" select="$.content"/>
+            <prop name="commentTime" select="$.updatedDate"/>
+            <prop-output target="/data/wandoujia/${catalog}/${subCatalog}/appcomments.sql" newline="true">
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${comment}','${commentTime}');
+            </prop-output>
+        </blocks>
+        <blocks select="$.comments">
+            <prop name="commentId" vtype="uuid"/>
+            <prop name="user" select="$.author.name"/>
+            <prop name="comment" select="$.content"/>
+            <prop name="commentTime" select="$.updatedDate"/>
+            <prop-output target="/data/wandoujia/${catalog}/${subCatalog}/appcomments.sql" newline="true">
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${comment}','${commentTime}');
+            </prop-output>
+        </blocks>
+    </task>
+
+</tasks>

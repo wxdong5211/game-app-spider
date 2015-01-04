@@ -1,0 +1,21 @@
+apply plugin:'application'
+
+//applicationDefaultJvmArgs = ["-Dgreeting.language=en"]
+
+jar {
+    exclude "**/*.xml","**/*.properties"
+}
+
+startScripts{
+    classpath += files('conf')
+    doLast {
+        def windowsScriptFile = file getWindowsScript()
+        def unixScriptFile    = file getUnixScript()
+        windowsScriptFile.text = windowsScriptFile.text.replace('%APP_HOME%\\lib\\conf', '%APP_HOME%\\conf')
+        unixScriptFile.text    = unixScriptFile.text.replace('$APP_HOME/lib/conf', '$APP_HOME/conf')
+    }
+}
+
+applicationDistribution.from(sourceSets.main.resources) {
+    into "conf"
+}

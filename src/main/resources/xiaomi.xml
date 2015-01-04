@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks host="http://app.mi.com/" boot="catalog">
+
+    <task id="catalog" uri="game">
+        <blocks select=".sidebar-mod">
+            <exclude contains="true" vtype="text">游戏应用</exclude>
+            <prop name="from" vtype="const" const="xiaomi"/>
+            <blocks select="li a" task-ref="apps">
+                <prop name="subCatalog" vtype="text"/>
+                <context name="catalogPageUri" subStart="category/" attr="href" vtype="attr"/>
+            </blocks>
+        </blocks>
+    </task>
+
+    <task id="apps" uri="categotyAllListApi?categoryId=${catalogPageUri}&amp;pageSize=50" page-param="page" thread="true" new-client="true"
+          data-type="json">
+        <max-page select="$.count" attr="data-total" vtype="attr" mod="50"/>
+        <blocks select="$.data" task-ref="detail">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" select="$.displayName"/>
+            <prop name="logo" select="$.icon"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="detailPageUri" select="$.appId"/>
+        </blocks>
+    </task>
+
+    <task id="detail" uri="detail/${detailPageUri}">
+        <blocks select=".app-info">
+            <prop name="uri" select=".download" attr="href" vtype="attr"/>
+            <prop name="stars" select=".star1-empty>div" attr="class" subStart="star1-hover star1-" vtype="attr"/>
+            <prop name="company" select=".intro-titles p" index="first" vtype="text"/>
+        </blocks>
+        <blocks select=".details .cf">
+            <prop name="version" select="li" index="3" vtype="text"/>
+            <prop name="datetime" select="li" index="5" vtype="text"/>
+        </blocks>
+        <blocks select=".app-text">
+            <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
+            <prop name="description" select="p" index="first" vtype="text"/>
+            <prop-output target="/data/xiaomi/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${stars}','${description}','${from}','${createTime}');
+            </prop-output>
+        </blocks>
+        <blocks select=".bigimg-scroll img">
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="src" vtype="attr"/>
+            <prop-output target="/data/xiaomi/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+    </task>
+
+</tasks>

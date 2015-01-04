@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks host="http://zhushou.360.cn/" boot="catalog">
+
+    <task id="catalog" uri="list/index/cid/2/order/download/?page=1">
+        <blocks select=".select>li">
+            <exclude attr="id" vtype="attr">filter_mod</exclude>
+            <blocks select="a" task-ref="apps">
+                <exclude vtype="text">全部</exclude>
+                <exclude vtype="text">儿童游戏</exclude>
+                <prop name="subCatalog" vtype="text"/>
+                <prop name="from" vtype="const" const="360"/>
+                <context name="catalogPageUri" attr="href" vtype="attr"/>
+            </blocks>
+        </blocks>
+    </task>
+
+    <task id="apps" uri="${catalogPageUri}" page-param="page" thread="true" new-client="true">
+        <max-page select="script" subStart="pg.pageCount" subEnd=";" vtype="html"/>
+        <blocks select=".iconList li" task-ref="url,detail">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" select="h3 a" vtype="text"/>
+            <prop name="logo" select="img" attr="_src" vtype="attr"/>
+            <prop name="times" select="span" vtype="text"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="sid" select="h3 a" attr="sid" vtype="attr"/>
+            <context name="detailPageUri" select="h3 a" attr="href" vtype="attr"/>
+        </blocks>
+    </task>
+
+    <task id="url" uri="other/softurl/sid/${sid}">
+        <blocks select="body">
+            <prop name="uri" subStart="360market|" vtype="text"/>
+        </blocks>
+    </task>
+
+    <task id="detail" uri="${detailPageUri}">
+        <blocks select=".product" >
+            <prop name="stars" select=".js-votepanel" vtype="text"/>
+        </blocks>
+        <blocks select=".breif">
+            <prop name="version" select=".base-info td" index="2" subStart="：" vtype="text"/>
+            <prop name="company" select=".base-info td" index="0" subStart="：" vtype="text"/>
+            <prop name="description" vtype="text"/>
+            <prop name="datetime" select=".base-info td" index="1" subStart="：" vtype="text"/>
+            <context name="baike_name" select="input[name=groupid]" attr="value" vtype="attr"/>
+            <prop-output target="/data/360/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${description}','${from}','${createTime}');
+            </prop-output>
+        </blocks>
+        <blocks select="#scrollbar" >
+            <prop name="snap" attr="data-snaps" vtype="attr"/>
+            <prop-output target="/data/360/${subCatalog}/appattrs.sql" newline="true" split="snap" splitBy="," uuid="attrId">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+        <blocks select=".html-brief" >
+            <prop name="version" select=".base-info td" index="2" subStart="：" vtype="text"/>
+            <prop name="company" select=".base-info td" index="0" subStart="：" vtype="text"/>
+            <prop name="description" vtype="text"/>
+            <prop name="datetime" select=".base-info td" index="1" subStart="：" vtype="text"/>
+            <prop-output target="/data/360/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${description}','${from}','${createTime}');
+            </prop-output>
+            <blocks select="img">
+                <prop name="attrId" vtype="uuid"/>
+                <prop name="snap" attr="src" vtype="attr"/>
+                <prop-output target="/data/360/${subCatalog}/appattrs.sql" newline="true">
+                    INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+                </prop-output>
+            </blocks>
+        </blocks>
+        <blocks select="script" task-ref="comment">
+            <exclude contains="true" vtype="html">baike_name</exclude>
+            <context name="baike_name" subStart="baike_name': '" subEnd="'" vtype="html"/>
+        </blocks>
+    </task>
+    <task id="comment" uri="http://intf.baike.360.cn/index.php?callback=jQuery17205616754044312984_${time:ms}&amp;name=${url:baike_name}&amp;c=message&amp;a=getmessage&amp;start=0&amp;count=10&amp;type=&amp;_=1420280866964">
+        <blocks select="body">
+            <prop name="comment" subStart="&quot;messages&quot;:" subEnd="}}" vtype="text"/>
+            <prop-output target="/data/360/${subCatalog}/appcomments.sql" newline="true" uuid="commentId" json="array:comment">
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${comment.username}','${comment.content}','${comment.create_time}');
+            </prop-output>
+        </blocks>
+    </task>
+
+</tasks>

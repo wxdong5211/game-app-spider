@@ -1,0 +1,12 @@
+if (plugins.hasPlugin('scala')){
+    dependencies {
+        compile 'org.scala-lang:scala-library:2.11.4'
+    }
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.useAnt = false
+    }
+}
+
+dependencies {
+    compile 'com.typesafe.akka:akka-actor_2.11:2.3.7'
+}
