@@ -27,6 +27,7 @@
     <task id="detail" uri="detail/${detailPageUri}">
         <blocks select=".app-info">
             <prop name="uri" select=".download" attr="href" vtype="attr"/>
+            <!--http://app.mi.com prefix-->
             <prop name="stars" select=".star1-empty>div" attr="class" subStart="star1-hover star1-" vtype="attr"/>
             <prop name="company" select=".intro-titles p" index="first" vtype="text"/>
         </blocks>
@@ -38,7 +39,7 @@
             <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
             <prop name="description" select="p" index="first" vtype="text"/>
             <prop-output target="/data/xiaomi/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${stars}','${description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','http://app.mi.com${uri}','${stars}','${description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select=".bigimg-scroll img">
