@@ -111,7 +111,7 @@ trait Selector {
       ele.select(select).last()
     }else{
       val eles = ele.select(select)
-      val len = eles.size()-1
+      val len = eles.size()
       eles.get((len+Integer.parseInt(index))%len)
     }
   }
