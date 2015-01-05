@@ -49,6 +49,11 @@ object XmlConfiguration {
       task.pageParam = pageParam
       task.maxPage = configMaxPage(ele.element("max-page"))
     }
+    val pageVar: String = ele.attributeValue("page-var")
+    if(pageVar!=null&&pageVar.length() !=0){
+      task.pageVar = pageVar
+      task.maxPage = configMaxPage(ele.element("max-page"))
+    }
     ele.elements("blocks").foreach((obj)=>{
       task.blocks :+= configBlocks(obj.asInstanceOf[Element])
     })

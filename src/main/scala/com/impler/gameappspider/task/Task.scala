@@ -8,6 +8,7 @@ class Task {
   var id: String = null
   var uri: String = null
   var pageParam: String = null
+  var pageVar: String = null
   var thread: String = null
   var newClient: String = null
   var dataType: String = null

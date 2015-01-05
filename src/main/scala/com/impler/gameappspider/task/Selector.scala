@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 
 import com.alibaba.fastjson.{JSONPath, JSON}
+import com.impler.gameappspider.utils.AppStringUtil
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
@@ -22,18 +23,7 @@ trait Selector {
 
   def getJsonValue(json: Any): String = {
     var str = getJsonStringValue(json)
-    if(subStart!=null&&subStart.length!=0){
-      val idx = str.indexOf(subStart)
-      if(idx > -1){
-        str = str.substring(idx+subStart.length)
-      }
-    }
-    if(subEnd!=null&&subEnd.length!=0){
-      val idx = str.indexOf(subEnd)
-      if(idx > -1){
-        str = str.substring(0,idx)
-      }
-    }
+    str = AppStringUtil.subString(str,subStart,subEnd)
     str
   }
   def getJsonStringValue(json: Any): String = {
@@ -61,18 +51,7 @@ trait Selector {
 
   def getValue(ele: Element): String = {
     var str = getStringValue(ele)
-    if(subStart!=null&&subStart.length!=0){
-      val idx = str.indexOf(subStart)
-      if(idx > -1){
-        str = str.substring(idx+subStart.length)
-      }
-    }
-    if(subEnd!=null&&subEnd.length!=0){
-      val idx = str.indexOf(subEnd)
-      if(idx > -1){
-        str = str.substring(0,idx)
-      }
-    }
+    str = AppStringUtil.subString(str,subStart,subEnd)
     str
   }
   def getStringValue(ele: Element): String = {
@@ -84,13 +63,7 @@ trait Selector {
           if(index==null||index.length==0){
             ele.select(select).text()
           }else{
-            if(index=="first"){
-              ele.select(select).first().text()
-            }else if(index=="last"){
-              ele.select(select).last().text()
-            }else{
-              ele.select(select).get(Integer.parseInt(index)).text()
-            }
+            getIndexElement(ele).text()
           }
         }
       case "html" =>
@@ -100,13 +73,7 @@ trait Selector {
           if(index==null||index.length==0){
             ele.select(select).html()
           }else{
-            if(index=="first"){
-              ele.select(select).first().html()
-            }else if(index=="last"){
-              ele.select(select).last().html()
-            }else{
-              ele.select(select).get(Integer.parseInt(index)).html()
-            }
+            getIndexElement(ele).html()
           }
         }
       case "attr" =>
@@ -118,13 +85,7 @@ trait Selector {
           if(index==null||index.length==0){
             ele.select(select).attr(attr)
           }else{
-            if(index=="first"){
-              ele.select(select).first().attr(attr)
-            }else if(index=="last"){
-              ele.select(select).last().attr(attr)
-            }else{
-              ele.select(select).get(Integer.parseInt(index)).attr(attr)
-            }
+            getIndexElement(ele).attr(attr)
           }
         }
       case "datetime" =>
@@ -141,6 +102,18 @@ trait Selector {
     if(select==null||select.length==0)
       null
     else ele.select(select)
+  }
+
+  def getIndexElement(ele: Element): Element = {
+    if(index=="first"){
+      ele.select(select).first()
+    }else if(index=="last"){
+      ele.select(select).last()
+    }else{
+      val eles = ele.select(select)
+      val len = eles.size()-1
+      eles.get((len+Integer.parseInt(index))%len)
+    }
   }
 
 }

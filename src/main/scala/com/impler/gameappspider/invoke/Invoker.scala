@@ -1,12 +1,13 @@
 package com.impler.gameappspider.invoke
 
 import java.io.{File, FileWriter}
+import java.net.URLEncoder
 import java.util
 import java.util.UUID
 
 import com.alibaba.fastjson.{JSONPath, JSONArray, JSON, JSONObject}
 import com.impler.gameappspider.task.{Blocks, PropOutput, Task, Tasks}
-import com.impler.gameappspider.utils.ELUtil
+import com.impler.gameappspider.utils.{AppStringUtil, ELUtil}
 import jdk.nashorn.internal.parser.JSONParser
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
@@ -51,15 +52,18 @@ class Invoker {
       context += task.stepVar -> task.step
       taskStart = task.start
       context += task.startVar -> taskStart
+    }else if(task.pageVar!=null&&task.pageVar.length()!=0){
+      taskStart = 1
+      context += task.pageVar -> taskStart
     }
     val uri = getUri(task)
     val log = "Task["+task.id+"];url="+uri
     logger.info(log)
     val html: String = get(uri)
     if("json".equals(task.dataType)){
-      invoke(task,JSON.parseObject(getJsonSub(task,html)),uri,log)
+      invoke(task,JSON.parseObject(getJsonSub(task,html)))
     }else{
-      invoke(task,Jsoup.parse(html),uri,log)
+      invoke(task,Jsoup.parse(html))
     }
   }
 
@@ -71,33 +75,39 @@ class Invoker {
     uri
   }
 
+  def appendUriParam(uri: String, key: String, value: String,encode: Boolean): String = {
+    var dest = uri
+    var connect: String = "&"
+    if(dest.indexOf("?")<0){
+      connect = "?"
+    }
+    dest+=connect+key+"="
+    if(encode){
+      dest+=URLEncoder.encode(value,"UTF-8")
+    }else{
+      dest+=value
+    }
+    dest
+  }
+
   def getJsonSub(task: Task, html: String): String = {
-    var str = html
-    if(task.subStart!=null&&task.subStart.length!=0){
-      val idx = str.indexOf(task.subStart)
-      if(idx > -1){
-        str = str.substring(idx+task.subStart.length)
-      }
-    }
-    if(task.subEnd!=null&&task.subEnd.length!=0){
-      val idx = str.indexOf(task.subEnd)
-      if(idx > -1){
-        str = str.substring(0,idx)
-      }
-    }
+    var str = AppStringUtil.subString(html,task.subStart,task.subEnd)
     if(task.wrap!=null&&task.wrap.length!=0){
       str = "{\""+task.wrap+"\":"+str+"}"
     }
     str
   }
 
-  def invoke(task: Task, json: JSONObject,uri: String,log: String): Unit = {
+  def invoke(task: Task, json: JSONObject): Unit = {
+    var uri = getUri(task)
+    var log = "Task["+task.id+"];url="+uri
     if(task.untilEmpty!=null&&task.untilEmpty.length()!=0){
       var size = JSONPath.size(json,task.untilEmpty)
       val max = task.max
       while(size>0&&(max <= 0 || taskStart <= max)){
-        val uri = getUri(task)
-        logger.info("Task["+task.id+"];url="+uri+",until="+task.start+"/"+task.step+"/"+taskStart)
+        uri = getUri(task)
+        log = "Task["+task.id+"];url="+uri
+        logger.info(log+",until="+task.start+"/"+task.step+"/"+taskStart)
         taskStart += task.step
         context += task.startVar -> taskStart
         val html: String = get(uri)
@@ -112,27 +122,36 @@ class Invoker {
         invokeJson(block,json)
       })
       if(task.pageParam!=null&&task.pageParam.length()!=0){
-        val maxPageStr: String = task.maxPage.getJsonValue(json)
-        if(maxPageStr!=null){
-          var maxPage: Int = getIntAtString(task.maxPage.getJsonValue(json))
-          val mod = task.maxPage.mod
-          if(mod>0){
-            if(maxPage%mod==0){
-              maxPage = maxPage/mod
-            }else{
-              maxPage = maxPage/mod + 1
-            }
-          }
-          var max = task.maxPage.max
-          if(max<1||max>maxPage)max = maxPage
+        val maxPage = getMaxPage(task,task.maxPage.getJsonValue(json))
+        var max = task.maxPage.max
+        if(max<1||max>maxPage)max = maxPage
+        if(max>1){
           for(i <- 2 to max){
             logger.info(log+",page="+i+"/"+max+"/"+maxPage)
-            var connect: String = "&"
-            if(uri.indexOf("?")<0){
-              connect = "?"
-            }
-            val html: String = get(uri+connect+task.pageParam+"="+i)
+            val html: String = get(appendUriParam(uri,task.pageParam,""+i,encode = false))
             val json: JSONObject = JSON.parseObject(getJsonSub(task,html))
+            task.blocks.foreach((block)=>{
+              invokeJson(block,json)
+            })
+          }
+        }
+      }else if(task.pageVar!=null&&task.pageVar.length()!=0){
+        val maxPage = getMaxPage(task,task.maxPage.getJsonValue(json))
+        val maxThrold = task.maxPage.max
+        var max = maxThrold
+        if(max<1||max>maxPage)max = maxPage
+        if(max>1){
+          var nextMaxPage: Int = 0
+          while(taskStart<=max){
+            taskStart += 1
+            context += task.pageVar -> taskStart
+            uri = getUri(task)
+            log = "Task["+task.id+"];url="+uri
+            logger.info(log+",page="+taskStart+"/"+max+"/"+nextMaxPage)
+            val html: String = get(uri)
+            val json: JSONObject = JSON.parseObject(getJsonSub(task,html))
+            nextMaxPage = getMaxPage(task,task.maxPage.getJsonValue(json))
+            if(nextMaxPage>max&&nextMaxPage<maxThrold)max = nextMaxPage
             task.blocks.foreach((block)=>{
               invokeJson(block,json)
             })
@@ -142,38 +161,65 @@ class Invoker {
     }
   }
 
-  def invoke(task: Task, document: Document,uri: String,log: String): Unit = {
+  def invoke(task: Task, document: Document): Unit = {
     task.blocks.foreach((block)=>{
       invoke(block,document)
     })
+    var uri = getUri(task)
+    var log = "Task["+task.id+"];url="+uri
     if(task.pageParam!=null&&task.pageParam.length()!=0){
-      val maxPageStr: String = task.maxPage.getValue(document)
-      if(maxPageStr!=null){
-        var maxPage: Int = getIntAtString(task.maxPage.getValue(document))
-        val mod = task.maxPage.mod
-        if(mod>0){
-          if(maxPage%mod==0){
-            maxPage = maxPage/mod
-          }else{
-            maxPage = maxPage/mod + 1
-          }
-        }
-        var max = task.maxPage.max
-        if(max<1||max>maxPage)max = maxPage
+      val maxPage = getMaxPage(task,task.maxPage.getValue(document))
+      var max = task.maxPage.max
+      if(max<1||max>maxPage)max = maxPage
+      if(max>1){
         for(i <- 2 to max){
           logger.info(log+",page="+i+"/"+max+"/"+maxPage)
-          var connect: String = "&"
-          if(uri.indexOf("?")<0){
-            connect = "?"
-          }
-          val html: String = get(uri+connect+task.pageParam+"="+i)
+          val html: String = get(appendUriParam(uri,task.pageParam,""+i,encode = false))
           val document: Document = Jsoup.parse(html)
           task.blocks.foreach((block)=>{
             invoke(block,document)
           })
         }
       }
+    }else if(task.pageVar!=null&&task.pageVar.length()!=0){
+      val maxPage = getMaxPage(task,task.maxPage.getValue(document))
+      val maxThrold = task.maxPage.max
+      var max = maxThrold
+      if(maxThrold<1||maxThrold>maxPage)max = maxPage
+      if(max>1){
+        var nextMaxPage = maxPage
+        while(taskStart<=max){
+          taskStart += 1
+          context += task.pageVar -> taskStart
+          uri = getUri(task)
+          log = "Task["+task.id+"];url="+uri
+          logger.info(log+",page="+taskStart+"/"+max+"/"+nextMaxPage)
+          val html: String = get(uri)
+          val document: Document = Jsoup.parse(html)
+          nextMaxPage = getMaxPage(task,task.maxPage.getValue(document))
+          if(maxThrold<1||maxThrold>maxPage)max = nextMaxPage
+          task.blocks.foreach((block)=>{
+            invoke(block,document)
+          })
+        }
+      }
     }
+  }
+
+  def getMaxPage(task: Task, maxPageStr: String): Int = {
+    if(maxPageStr==null){
+      return -1
+    }
+    var maxPage: Int = AppStringUtil.getIntAtString(maxPageStr)
+    val mod = task.maxPage.mod
+    if(mod>0){
+      if(maxPage%mod==0){
+        maxPage = maxPage/mod
+      }else{
+        maxPage = maxPage/mod + 1
+      }
+    }
+    maxPage
   }
 
   def invokeJson(block: Blocks, json: Any): Unit = {
@@ -276,15 +322,6 @@ class Invoker {
         }
     }
     exclude
-  }
-
-  def getIntAtString(str: String): Int = {
-    try{
-      java.lang.Double.valueOf(str.replaceAll("[^0-9.]","")).intValue()
-    }catch {
-      case e: Throwable => logger.error("getIntAtString str="+str,e)
-        -1
-    }
   }
 
   def propOutput(appHome: String, output: PropOutput): Unit = {

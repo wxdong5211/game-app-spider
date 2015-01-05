@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tasks host="http://www.anzhi.com/" boot="catalog">
 
-    <task id="catalog" uri="gamelist.html">
-        <blocks select="#item_game li a">
+    <task id="catalog" uri="widgetcat_2.html">
+        <blocks select="li a" task-ref="apps">
             <exclude vtype="text">汉化游戏</exclude>
             <prop name="subCatalog" vtype="text"/>
             <prop name="from" vtype="const" const="anzhi"/>
-            <context name="catalogPageUri" attr="href" vtype="attr"/>
+            <context name="catalogPageUri" subStart="_" subEnd="_" attr="href" vtype="attr"/>
         </blocks>
     </task>
 
-    <!--<task id="apps" uri="${catalogPageUri}" page-param="page_num" thread="true" new-client="true">
-        <max-page select=".pager" attr="data-total" vtype="attr"/>
-        <blocks select=".app-box" task-ref="detail">
-            <prop name="id" vtype="uuid"/>
-            <prop name="name" select=".quickdown" attr="data_name" vtype="attr"/>
-            <prop name="logo" select=".quickdown" attr="data_icon" vtype="attr"/>
-            <prop name="version" select=".quickdown" attr="data_versionname" vtype="attr"/>
-            <prop name="uri" select=".quickdown" attr="data_url" vtype="attr"/>
-            <prop name="times" select=".app-meta .down" vtype="text"/>
-            <prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>
-            <prop name="createTime" vtype="datetime"/>
-            <context name="detailPageUri" select=">a" attr="href" vtype="attr"/>
-        </blocks>
-    </task>-->
+    <task id="apps" uri="sort_${catalogPageUri}_${appPageNum}_hot.html" page-var="appPageNum" thread="true" new-client="true">
+        <max-page select=".pagebars a" index="-1" vtype="text"/>
+        <!--<blocks select=".app-box" task-ref="detail">-->
+            <!--<prop name="id" vtype="uuid"/>-->
+            <!--<prop name="name" select=".quickdown" attr="data_name" vtype="attr"/>-->
+            <!--<prop name="logo" select=".quickdown" attr="data_icon" vtype="attr"/>-->
+            <!--<prop name="version" select=".quickdown" attr="data_versionname" vtype="attr"/>-->
+            <!--<prop name="uri" select=".quickdown" attr="data_url" vtype="attr"/>-->
+            <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
+            <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
+            <!--<prop name="createTime" vtype="datetime"/>-->
+            <!--<context name="detailPageUri" select=">a" attr="href" vtype="attr"/>-->
+        <!--</blocks>-->
+    </task>
 
     <!--<task id="detail" uri="${detailPageUri}">
         <blocks select=".content-main" task-ref="comment">
