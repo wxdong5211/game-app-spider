@@ -12,49 +12,54 @@
 
     <task id="apps" uri="sort_${catalogPageUri}_${appPageNum}_hot.html" page-var="appPageNum" thread="true" new-client="true">
         <max-page select=".pagebars a" index="-1" vtype="text"/>
-        <!--<blocks select=".app-box" task-ref="detail">-->
-            <!--<prop name="id" vtype="uuid"/>-->
-            <!--<prop name="name" select=".quickdown" attr="data_name" vtype="attr"/>-->
-            <!--<prop name="logo" select=".quickdown" attr="data_icon" vtype="attr"/>-->
-            <!--<prop name="version" select=".quickdown" attr="data_versionname" vtype="attr"/>-->
-            <!--<prop name="uri" select=".quickdown" attr="data_url" vtype="attr"/>-->
-            <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
-            <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
-            <!--<prop name="createTime" vtype="datetime"/>-->
-            <!--<context name="detailPageUri" select=">a" attr="href" vtype="attr"/>-->
-        <!--</blocks>-->
+        <blocks select=".app_list li" task-ref="detail,comment">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" select=".app_name" vtype="text"/>
+            <prop name="logo" select=".app_icon img" attr="src" vtype="attr"/>
+            <!--http://www.anzhi.com/ prefix-->
+            <prop name="version" select=".app_version" subStart="：" vtype="text"/>
+            <prop name="uri" select=".app_down a" subStart="(" subEnd=")" attr="onclick" vtype="attr"/>
+            <!--http://www.anzhi.com/dl_app.php?s=1949864&n=5 the key 194864 will be replace-->
+            <prop name="times" select=".app_downnum" subStart="：" vtype="text"/>
+            <prop name="stars" select=".stars" attr="style" vtype="attr"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="softId" select=".app_down a" subStart="(" subEnd=")" attr="onclick" vtype="attr"/>
+            <context name="detailPageUri" select=".app_name a" attr="href" vtype="attr"/>
+        </blocks>
     </task>
 
-    <!--<task id="detail" uri="${detailPageUri}">
-        <blocks select=".content-main" task-ref="comment">
-            <prop name="company" select=".origin" vtype="text"/>
-            <prop name="description" select=".brief-long" vtype="text"/>
-            &lt;!&ndash;<prop name="datetime" select=".name" vtype="text"/>&ndash;&gt;
-            <context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>
-            <prop-output target="/data/baidu/${catalog}/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${catalog}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${description}','${from}','${createTime}');
-            </prop-output>
-            <blocks select=".screenshot-container img">
-                <prop name="attrId" vtype="uuid"/>
-                <prop name="snap" attr="src" vtype="attr"/>
-                <prop-output target="/data/baidu/${catalog}/${subCatalog}/appattrs.sql" newline="true">
-                    INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
-                </prop-output>
-            </blocks>
+    <task id="detail" uri="${detailPageUri}">
+        <blocks select="#detail_line_ul" >
+            <prop name="company" select="li" index="6" subStart="：" vtype="text"/>
+            <prop name="datetime" select="li" index="2" subStart="：" vtype="text"/>
         </blocks>
-    </task>-->
-
-    <!--<task id="comment" uri="comment?action_type=getCommentList&amp;groupid=${commentId}" page-param="pn">
-        <max-page select="input[name=totalpage]" attr="value" vtype="attr" max="10"/>
-        <blocks select=".comment">
+        <blocks select=".app_detail_list" >
+            <exclude contains="true" select=".app_detail_title" vtype="text">简介</exclude>
+            <prop name="description" select=".app_detail_infor" vtype="text"/>
+            <!--<context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>-->
+            <prop-output target="/data/anzhi/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','http://www.anzhi.com/${logo}','${version}','${company}','http://www.anzhi.com/dl_app.php?s=${uri}&amp;n=5','${times}','${stars}','${description}','${from}','${createTime}');
+            </prop-output>
+        </blocks>
+        <blocks select=".screenshot-container img" >
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="src" vtype="attr"/>
+            <!--http://www.anzhi.com/ prefix-->
+            <prop-output target="/data/anzhi/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','http://www.anzhi.com/${snap}');
+            </prop-output>
+        </blocks>
+    </task>
+    <task id="comment" uri="comment.php?softid=${softId}">
+        <blocks select="#comment_list li">
             <prop name="commentId" vtype="uuid"/>
-            <prop name="user" select=".comment-info em" vtype="text"/>
-            <prop name="comment" select=".comment-info p" vtype="text"/>
-            <prop name="commentTime" select=".comment-time" vtype="text"/>
-            <prop-output target="/data/baidu/${catalog}/${subCatalog}/appcomments.sql" newline="true">
+            <prop name="user" select="img" attr="alt" vtype="attr"/>
+            <prop name="comment" select=".comment_list p" vtype="text"/>
+            <prop name="commentTime" select=".comment_list em" vtype="text"/>
+            <prop-output target="/data/anzhi/${subCatalog}/appcomments.sql" newline="true">
                 INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${comment}','${commentTime}');
             </prop-output>
         </blocks>
-    </task>-->
+    </task>
 
 </tasks>
