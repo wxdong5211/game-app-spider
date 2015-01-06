@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tasks host="http://android.d.cn/" boot="catalog">
 
-    <task id="catalog" uri="game/3/-1/-1">
-        <!--<blocks select=".cate>li">
-            <exclude select=".cate-head a" vtype="text">模拟辅助</exclude>
+    <task id="catalog" uri="game/3/-1/-1/${appPageNum}/" page-var="appPageNum">
+        <max-page select=".page a" index="-3" vtype="text"/>
+        <blocks select=".list-li">
+            <!--<exclude select=".cate-head a" vtype="text">模拟辅助</exclude>
             <prop name="catalog" select=".cate-head a" vtype="text"/>
             <prop name="from" vtype="const" const="baidu"/>
             <blocks select=".cate-body a" task-ref="apps">
                 <prop name="subCatalog" vtype="text"/>
                 <context name="catalogPageUri" attr="href" vtype="attr"/>
-            </blocks>
-        </blocks>-->
+            </blocks>-->
+        </blocks>
     </task>
 
     <!--<task id="apps" uri="${catalogPageUri}" page-param="page_num" thread="true" new-client="true">
