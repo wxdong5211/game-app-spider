@@ -11,7 +11,7 @@
     </task>
 
     <task id="apps" uri="sort_${catalogPageUri}_${appPageNum}_hot.html" page-var="appPageNum" thread="true" new-client="true">
-        <max-page select=".pagebars a" index="-1" vtype="text"/>
+        <max-page select=".pagebars a" index="-2" vtype="text"/>
         <blocks select=".app_list li" task-ref="detail,comment">
             <prop name="id" vtype="uuid"/>
             <prop name="name" select=".app_name" vtype="text"/>
