@@ -18,6 +18,8 @@ object GameAppSpiderMain {
   def main(args : Array[String]): Unit = {
     val siteXml = PropertyReader.getPropertyValue("config","site")
     logger.info("site = {}",siteXml)
+    val appHome = System.getenv("APP_HOME")
+    logger.info("APP_HOME = {}",appHome)
     val tasks: Tasks = XmlConfiguration.config(siteXml)
     val invoker: Invoker = new Invoker()
     invoker.invoke(tasks)
