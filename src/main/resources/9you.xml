@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks host="http://www.9game.cn/" boot="catalog">
+
+    <task id="catalog" uri="danji/2_0_25_0_1/">
+        <!--<blocks select=".cate>li">
+            <exclude select=".cate-head a" vtype="text">模拟辅助</exclude>
+            <prop name="catalog" select=".cate-head a" vtype="text"/>
+            <prop name="from" vtype="const" const="baidu"/>
+            <blocks select=".cate-body a" task-ref="apps">
+                <prop name="subCatalog" vtype="text"/>
+                <context name="catalogPageUri" attr="href" vtype="attr"/>
+            </blocks>
+        </blocks>-->
+    </task>
+
+    <!--<task id="apps" uri="${catalogPageUri}" page-param="page_num" thread="true" new-client="true">
+        <max-page select=".pager" attr="data-total" vtype="attr"/>
+        <blocks select=".app-box" task-ref="detail">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" select=".quickdown" attr="data_name" vtype="attr"/>
+            <prop name="logo" select=".quickdown" attr="data_icon" vtype="attr"/>
+            <prop name="version" select=".quickdown" attr="data_versionname" vtype="attr"/>
+            <prop name="uri" select=".quickdown" attr="data_url" vtype="attr"/>
+            <prop name="times" select=".app-meta .down" vtype="text"/>
+            <prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="detailPageUri" select=">a" attr="href" vtype="attr"/>
+        </blocks>
+    </task>-->
+
+    <!--<task id="detail" uri="${detailPageUri}">
+        <blocks select=".content-main" task-ref="comment">
+            <prop name="company" select=".origin" vtype="text"/>
+            <prop name="description" select=".brief-long" vtype="text"/>
+            &lt;!&ndash;<prop name="datetime" select=".name" vtype="text"/>&ndash;&gt;
+            <context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>
+            <prop-output target="/data/baidu/${catalog}/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${catalog}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${description}','${from}','${createTime}');
+            </prop-output>
+            <blocks select=".screenshot-container img">
+                <prop name="attrId" vtype="uuid"/>
+                <prop name="snap" attr="src" vtype="attr"/>
+                <prop-output target="/data/baidu/${catalog}/${subCatalog}/appattrs.sql" newline="true">
+                    INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+                </prop-output>
+            </blocks>
+        </blocks>
+    </task>-->
+
+    <!--<task id="comment" uri="comment?action_type=getCommentList&amp;groupid=${commentId}" page-param="pn">
+        <max-page select="input[name=totalpage]" attr="value" vtype="attr" max="10"/>
+        <blocks select=".comment">
+            <prop name="commentId" vtype="uuid"/>
+            <prop name="user" select=".comment-info em" vtype="text"/>
+            <prop name="comment" select=".comment-info p" vtype="text"/>
+            <prop name="commentTime" select=".comment-time" vtype="text"/>
+            <prop-output target="/data/baidu/${catalog}/${subCatalog}/appcomments.sql" newline="true">
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${comment}','${commentTime}');
+            </prop-output>
+        </blocks>
+    </task>-->
+
+</tasks>
