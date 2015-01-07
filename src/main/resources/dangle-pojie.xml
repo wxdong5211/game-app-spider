@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks host="http://android.d.cn/" boot="app">
+
+    <task id="app" uri="game/5/-1/-1/${appPageNum}/" page-var="appPageNum">
+        <max-page select=".page a" index="-3" vtype="text"/>
+        <blocks select=".list-li" task-ref="pkgs">
+            <prop name="from" vtype="const" const="dangle"/>
+            <prop name="catalog" vtype="const" const="破解游戏"/>
+            <prop name="name" select=".g-name a" vtype="text"/>
+            <prop name="logo" select="img" attr="o-src" vtype="attr"/>
+            <prop name="version" select=".down-ac" subStart="：" vtype="text"/>
+            <prop name="stars" select=".stars" subStart="-" attr="class" vtype="attr"/>
+            <context name="detailType" subStart="," subEnd="," select=".down-btn" attr="onclick" vtype="attr"/>
+            <context name="detailId" subStart="game/" subEnd=".html" select=".g-name a" attr="href" vtype="attr"/>
+        </blocks>
+    </task>
+
+    <task id="pkgs" uri="rm/red/${detailType}/${detailId}" data-type="json">
+        <blocks select="$.pkgs" task-ref="detail">
+            <prop name="createTime" vtype="datetime"/>
+            <prop name="id" vtype="uuid"/>
+            <prop name="nameFix" select="$.name"/>
+            <prop name="uri" select="$.pkgUrl"/>
+        </blocks>
+    </task>
+
+    <task id="detail" uri="game/${detailId}.html">
+        <blocks select=".de-game-info">
+            <prop name="subCatalog" select="li" index="first" subStart="类别" vtype="text"/>
+            <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
+            <prop name="company" select="li" index="last" subStart="开发商" vtype="text"/>
+            <prop name="datetime" select="li" index="2" subStart="时间" vtype="text"/>
+        </blocks>
+        <blocks select=".de-intro-inner">
+            <prop name="description" vtype="text"/>
+            <prop-output target="/data/dangle/${catalog}/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`stars`,`datetime`,`description`,`from`,`createTime`) VALUES('${id}','${name}(${nameFix})','${catalog}','${subCatalog}','${logo}','${version}','${company}','${uri}','${stars}','${datetime}','${sql:description}','${from}','${createTime}');
+            </prop-output>
+        </blocks>
+        <blocks select="#snapShotWrap img">
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="src" vtype="attr"/>
+            <prop-output target="/data/dangle/${catalog}/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+    </task>
+
+</tasks>
