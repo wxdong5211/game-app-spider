@@ -47,9 +47,7 @@ object ELUtil {
       if(r==null||r.length()==0){
         r = ""
       }
-      if(r.contains("$")){
-        r=r.replaceAll("\\$", "\\\\\\$")
-      }
+      r = adapterRegSpecChar(r)
       if(r.contains("\n")){
         r=r.replaceAll("\n", "")
       }
@@ -57,6 +55,40 @@ object ELUtil {
       m = pattern.matcher(str)
     }
     str
+  }
+
+  def adapterRegSpecChar(org: String): String ={
+    var dest = org
+    // . \ + * ? [ ^ ] $ ( ) { } = ! < > | : -
+    dest = adapterRegSpecChar(dest,".")
+    dest = adapterRegSpecChar(dest,"\\")
+    dest = adapterRegSpecChar(dest,"+")
+    dest = adapterRegSpecChar(dest,"*")
+    dest = adapterRegSpecChar(dest,"?")
+    dest = adapterRegSpecChar(dest,"[")
+    dest = adapterRegSpecChar(dest,"^")
+    dest = adapterRegSpecChar(dest,"]")
+    dest = adapterRegSpecChar(dest,"$")
+    dest = adapterRegSpecChar(dest,"(")
+    dest = adapterRegSpecChar(dest,")")
+    dest = adapterRegSpecChar(dest,"{")
+    dest = adapterRegSpecChar(dest,"}")
+    dest = adapterRegSpecChar(dest,"=")
+    dest = adapterRegSpecChar(dest,"!")
+    dest = adapterRegSpecChar(dest,"<")
+    dest = adapterRegSpecChar(dest,">")
+    dest = adapterRegSpecChar(dest,"|")
+    dest = adapterRegSpecChar(dest,":")
+    dest = adapterRegSpecChar(dest,"-")
+    dest
+  }
+
+  def adapterRegSpecChar(org: String, spec: String): String ={
+    var dest = org
+    if(dest.contains(spec)){
+      dest=dest.replaceAll("\\"+spec, "\\\\\\"+spec)
+    }
+    dest
   }
 
   def contextString(el: String, context: Map[String,Any]): String = {
