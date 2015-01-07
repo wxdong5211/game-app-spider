@@ -2,7 +2,7 @@
 <Configuration status="INFO">
     <properties>
         <property name="APP_HOME">$${env:APP_HOME}</property>
-        <property name="LOG_HOME">logs</property>
+        <property name="LOG_HOME">${APP_HOME}/logs</property>
         <property name="mainFilename">${LOG_HOME}/app.log</property>
         <property name="filename">${LOG_HOME}/$${ctx:catalogs}/catalog.log</property>
     </properties>
