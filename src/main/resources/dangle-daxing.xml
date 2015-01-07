@@ -9,7 +9,7 @@
             <prop name="name" select=".g-name a" vtype="text"/>
             <prop name="logo" select="img" attr="o-src" vtype="attr"/>
             <prop name="version" select=".down-ac" subStart="：" vtype="text"/>
-            <prop name="stars" select=".mark .red" vtype="text"/>
+            <prop name="stars" select=".stars" subStart="-" attr="class" vtype="attr"/>
             <context name="detailType" subStart="," subEnd="," select=".down-btn" attr="onclick" vtype="attr"/>
             <context name="detailId" subStart="game/" subEnd=".html" select=".g-name a" attr="href" vtype="attr"/>
         </blocks>
