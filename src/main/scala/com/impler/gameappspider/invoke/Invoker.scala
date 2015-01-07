@@ -260,32 +260,37 @@ class Invoker {
   }
 
   def invoke(block: Blocks, ele: Element): Unit = {
-    val appHome = System.getenv("APP_HOME")
-    block.getElements(ele).foreach((item)=>{
-      if(!checkExclude(block,item)){
-        block.prop.foreach{
-          keyVal => prop += keyVal._1 -> keyVal._2.getValue(item)
-        }
-        block.context.foreach{
-          keyVal => context += keyVal._1 -> keyVal._2.getValue(item)
-        }
-        block.propOutput.foreach((output)=>{
-          propOutput(appHome,output)
-        })
-        block.blocks.foreach((block)=>{
-          invoke(block,item)
-        })
-        if(block.taskRef!=null&&block.taskRef.length!=0){
-          block.taskRef.split(",").foreach{
-            (refStr)=>
-              val ref: Task = this.tasks.tasks(refStr)
-              if(ref!=null){
-                invoke(ref)
-              }
+    try{
+      val appHome = System.getenv("APP_HOME")
+      block.getElements(ele).foreach((item)=>{
+        if(!checkExclude(block,item)){
+          block.prop.foreach{
+            keyVal => prop += keyVal._1 -> keyVal._2.getValue(item)
+          }
+          block.context.foreach{
+            keyVal => context += keyVal._1 -> keyVal._2.getValue(item)
+          }
+          block.propOutput.foreach((output)=>{
+            propOutput(appHome,output)
+          })
+          block.blocks.foreach((block)=>{
+            invoke(block,item)
+          })
+          if(block.taskRef!=null&&block.taskRef.length!=0){
+            block.taskRef.split(",").foreach{
+              (refStr)=>
+                val ref: Task = this.tasks.tasks(refStr)
+                if(ref!=null){
+                  invoke(ref)
+                }
+            }
           }
         }
-      }
-    })
+      })
+    }catch {
+      case any: Throwable => logger.error("blocks error",any)
+    }
+
   }
 
   def checkJsonExclude(block: Blocks, item: Any): Boolean = {
