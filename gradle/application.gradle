@@ -13,6 +13,9 @@ startScripts{
         def unixScriptFile    = file getUnixScript()
         windowsScriptFile.text = windowsScriptFile.text.replace('%APP_HOME%\\lib\\conf', '%APP_HOME%\\conf')
         unixScriptFile.text    = unixScriptFile.text.replace('$APP_HOME/lib/conf', '$APP_HOME/conf')
+        if(unixScriptFile.text.indexOf("export APP_HOME")==-1){
+            unixScriptFile.text    = unixScriptFile.text.replace('APP_HOME=',  'export APP_HOME=')
+        }
     }
 }
 
