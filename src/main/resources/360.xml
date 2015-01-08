@@ -74,11 +74,15 @@
             <context name="baike_name" subStart="baike_name': '" subEnd="'" vtype="html"/>
         </blocks>
     </task>
-    <task id="comment" uri="http://intf.baike.360.cn/index.php?callback=jQuery17205616754044312984_${time:ms}&amp;name=${url:baike_name}&amp;c=message&amp;a=getmessage&amp;start=0&amp;count=10&amp;type=&amp;_=1420280866964">
-        <blocks select="body">
-            <prop name="comment" subStart="&quot;messages&quot;:" subEnd="}}" vtype="text"/>
-            <prop-output target="/data/360/${subCatalog}/appcomments.sql" newline="true" uuid="commentId" json="array:comment">
-                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${comment.username}','${comment.content}','${comment.create_time}');
+    <task id="comment" uri="http://intf.baike.360.cn/index.php?callback=jQuery17205616754044312984_1420722277928&amp;name=${url:baike_name}&amp;c=message&amp;a=getmessage&amp;start=0&amp;count=10&amp;type=&amp;_=1420280866964"
+          data-type="json" subStart="8(" subEnd=");">
+        <blocks select="$.data.messages">
+            <prop name="commentId" vtype="uuid"/>
+            <prop name="user" select="$.username"/>
+            <prop name="comment" select="$.content" />
+            <prop name="commentTime" select="$.create_time"/>
+            <prop-output target="/data/360/${subCatalog}/appcomments.sql" newline="true">
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
     </task>
