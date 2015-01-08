@@ -30,7 +30,7 @@
         <blocks select=".det-app-data-info">
             <prop name="description" vtype="text"/>
             <prop-output target="/data/yingyongbao/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${datetime}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select="#J_PicTurnImgBox img" task-ref="comment">
@@ -49,7 +49,7 @@
             <prop name="comment" select="$.content"/>
             <prop name="commentTime" select="$.createdTime"/>
             <prop-output target="/data/yingyongbao/${subCatalog}/appcomments.sql" newline="true">
-                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${sql:comment}','${commentTime}');
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
     </task>

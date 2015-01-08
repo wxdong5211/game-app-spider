@@ -35,7 +35,7 @@
             <!--<prop name="datetime" select=".name" vtype="text"/>-->
             <context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>
             <prop-output target="/data/baidu/${catalog}/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${catalog}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
             </prop-output>
             <blocks select=".screenshot-container img">
                 <prop name="attrId" vtype="uuid"/>
@@ -55,7 +55,7 @@
             <prop name="comment" select=".comment-info p" vtype="text"/>
             <prop name="commentTime" select=".comment-time" vtype="text"/>
             <prop-output target="/data/baidu/${catalog}/${subCatalog}/appcomments.sql" newline="true">
-                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${comment}','${commentTime}');
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
     </task>

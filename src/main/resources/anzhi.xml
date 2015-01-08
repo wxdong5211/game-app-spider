@@ -38,7 +38,7 @@
             <prop name="description" select=".app_detail_infor" vtype="text"/>
             <!--<context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>-->
             <prop-output target="/data/anzhi/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','http://www.anzhi.com/${logo}','${version}','${company}','http://www.anzhi.com/dl_app.php?s=${uri}&amp;n=5','${times}','${stars}','${description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${datetime}','${subCatalog}','http://www.anzhi.com/${logo}','${version}','${sql:company}','http://www.anzhi.com/dl_app.php?s=${uri}&amp;n=5','${times}','${stars}','${sql:description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select=".screenshot-container img" >
@@ -57,7 +57,7 @@
             <prop name="comment" select=".comment_list p" vtype="text"/>
             <prop name="commentTime" select=".comment_list em" vtype="text"/>
             <prop-output target="/data/anzhi/${subCatalog}/appcomments.sql" newline="true">
-                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${user}','${comment}','${commentTime}');
+                INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
     </task>

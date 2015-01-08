@@ -44,7 +44,7 @@
             <prop name="datetime" select=".base-info td" index="1" subStart="：" vtype="text"/>
             <context name="baike_name" select="input[name=groupid]" attr="value" vtype="attr"/>
             <prop-output target="/data/360/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','${uri}','${times}','${stars}','${description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${datetime}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select="#scrollbar" >

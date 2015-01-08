@@ -39,7 +39,7 @@
             <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
             <prop name="description" select="p" index="first" vtype="text"/>
             <prop-output target="/data/xiaomi/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${name}','${datetime}','${subCatalog}','${logo}','${version}','${company}','http://app.mi.com${uri}','${stars}','${description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`datetime`,`subCatalog`,`logo`,`version`,`company`,`uri`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${datetime}','${subCatalog}','${logo}','${version}','${sql:company}','http://app.mi.com${uri}','${stars}','${sql:description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select=".bigimg-scroll img">
