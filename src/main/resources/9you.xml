@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tasks host="http://www.9game.cn/" boot="catalog">
-
+    <!--danji/2_0_25_0_1/-->
+    <!--http://www.9game.cn/tpl/pc2/common/category_danji_ajax.html?beginIndex=21&pcount=20&categoryid=0&keyword=25&orderby=0&p_id=2&statsPage=danji_category-->
     <task id="catalog" uri="danji/2_0_25_0_1/">
         <!--<blocks select=".cate>li">
             <exclude select=".cate-head a" vtype="text">模拟辅助</exclude>
