@@ -27,6 +27,7 @@ trait Selector {
     str
   }
   def getJsonStringValue(json: Any): String = {
+    if(json==null)return ""
     vtype match {
       case "datetime" =>
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
@@ -55,6 +56,7 @@ trait Selector {
     str
   }
   def getStringValue(ele: Element): String = {
+    if(ele==null)return ""
     vtype match {
       case "text" =>
         if(select==null||select.length==0)
@@ -100,7 +102,7 @@ trait Selector {
 
   def getElements(ele: Element): Elements = {
     if(select==null||select.length==0)
-      null
+      new Elements()
     else ele.select(select)
   }
 
