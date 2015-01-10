@@ -65,7 +65,7 @@ trait Selector {
           if(index==null||index.length==0){
             ele.select(select).text()
           }else{
-            getIndexElement(ele).text()
+            getIndexElements(ele).text()
           }
         }
       case "html" =>
@@ -75,7 +75,7 @@ trait Selector {
           if(index==null||index.length==0){
             ele.select(select).html()
           }else{
-            getIndexElement(ele).html()
+            getIndexElements(ele).html()
           }
         }
       case "attr" =>
@@ -87,7 +87,7 @@ trait Selector {
           if(index==null||index.length==0){
             ele.select(select).attr(attr)
           }else{
-            getIndexElement(ele).attr(attr)
+            getIndexElements(ele).attr(attr)
           }
         }
       case "datetime" =>
@@ -106,16 +106,39 @@ trait Selector {
     else ele.select(select)
   }
 
-  def getIndexElement(ele: Element): Element = {
+  def getIndexElements(ele: Element): Elements = {
+    val ret = new Elements()
     if(index=="first"){
-      ele.select(select).first()
+      ret.add(ele.select(select).first())
     }else if(index=="last"){
-      ele.select(select).last()
+      ret.add(ele.select(select).last())
     }else{
       val eles = ele.select(select)
       val len = eles.size()
-      eles.get((len+Integer.parseInt(index))%len)
+      if(index.contains(":")){
+        val idxs = index.split(":")
+        var start = 0
+        var end = len-1
+        if(idxs(0) != ""){
+          start = (len+Integer.parseInt(idxs(0)))%len
+        }
+        if(idxs(1) != ""){
+          end = (len+Integer.parseInt(idxs(1)))%len
+        }
+        var step = 1
+        if(start>end)step = -1
+        if(start==end)ret.add(eles.get(start))
+        else{
+          while(start<=end){
+            ret.add(eles.get(start))
+            start += step
+          }
+        }
+      }else{
+        ret.add(eles.get((len+Integer.parseInt(index))%len))
+      }
     }
+    ret
   }
 
 }
