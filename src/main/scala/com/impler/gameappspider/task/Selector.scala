@@ -62,21 +62,13 @@ trait Selector {
         if(select==null||select.length==0)
           ele.text()
         else {
-          if(index==null||index.length==0){
-            ele.select(select).text()
-          }else{
-            getIndexElements(ele).text()
-          }
+          getIndexElements(ele).text()
         }
       case "html" =>
         if(select==null||select.length==0)
           ele.html()
         else {
-          if(index==null||index.length==0){
-            ele.select(select).html()
-          }else{
-            getIndexElements(ele).html()
-          }
+          getIndexElements(ele).html()
         }
       case "attr" =>
         if(attr==null||attr.length==0)
@@ -84,11 +76,7 @@ trait Selector {
         else if(select==null||select.length==0)
           ele.attr(attr)
         else {
-          if(index==null||index.length==0){
-            ele.select(select).attr(attr)
-          }else{
-            getIndexElements(ele).attr(attr)
-          }
+          getIndexElements(ele).attr(attr)
         }
       case "datetime" =>
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
@@ -103,12 +91,14 @@ trait Selector {
   def getElements(ele: Element): Elements = {
     if(select==null||select.length==0)
       new Elements()
-    else ele.select(select)
+    else getIndexElements(ele)
   }
 
   def getIndexElements(ele: Element): Elements = {
     val ret = new Elements()
-    if(index=="first"){
+    if(index==null||index.length==0) {
+      return ele.select(select)
+    }else if(index=="first"){
       ret.add(ele.select(select).first())
     }else if(index=="last"){
       ret.add(ele.select(select).last())
