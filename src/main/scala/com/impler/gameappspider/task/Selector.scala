@@ -119,7 +119,7 @@ trait Selector {
         if(start>end)step = -1
         if(start==end)ret.add(eles.get(start))
         else{
-          while(start<=end){
+          while((step==1&&start<=end)||(step== -1&&start>=end)){
             ret.add(eles.get(start))
             start += step
           }
