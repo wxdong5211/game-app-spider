@@ -14,7 +14,7 @@
         <blocks select=".biglist li" task-ref="detail">
             <prop name="id" vtype="uuid"/>
             <prop name="subCatalog" select=".inrto a" index="first" vtype="text"/>
-            <prop name="name" select=".namelink a" attr="data_name" vtype="text"/>
+            <prop name="name" select=".namelink a" vtype="text"/>
             <prop name="logo" select=".mt5 img" attr="lazy-src" vtype="attr"/>
             <prop name="uri" select=".inrto a" index="last" attr="href" vtype="attr"/>
             <prop name="createTime" vtype="datetime"/>
