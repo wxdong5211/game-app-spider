@@ -19,45 +19,45 @@
             <prop name="uri" select=".inrto a" index="last" attr="href" vtype="attr"/>
             <prop name="createTime" vtype="datetime"/>
             <context name="detailPageUri" select=".namelink a" attr="href" vtype="attr"/>
-            <prop-output target="/data/muzhi/${catalog}/${subCatalog}/appattrs.sql" newline="true">
-                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${name}','${logo}','${uri}');
-            </prop-output>
         </blocks>
     </task>
 
     <task id="detail" uri="${detailPageUri}">
-        <!--<blocks select=".content-main" task-ref="comment">
-            <prop name="version" select=".quickdown" attr="data_versionname" vtype="attr"/>
-            <prop name="times" select=".app-meta .down" vtype="text"/>
-            <prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>
-            <prop name="datetime" select=".name" vtype="text"/>
-            <prop name="company" select=".origin" vtype="text"/>
-            <prop name="description" select=".brief-long" vtype="text"/>
-            <context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>
-            <prop-output target="/data/baidu/${catalog}/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
+        <blocks select=".detail_info">
+            <prop name="version" select="#gameVersion" vtype="text"/>
+            <prop name="times" select="#downCount" vtype="text"/>
+            <prop name="datetime" subStart="：" select="li" index="4" vtype="text"/>
+            <prop name="company" select="li a" index="last" vtype="text"/>
+        </blocks>
+        <blocks select=".g_intro p" index="first">
+            <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
+            <prop name="description" vtype="text"/>
+            <prop-output target="/data/muzhi/${catalog}/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`datetime`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${datetime}','${sql:description}','${from}','${createTime}');
             </prop-output>
-            <blocks select=".screenshot-container img">
-                <prop name="attrId" vtype="uuid"/>
-                <prop name="snap" attr="src" vtype="attr"/>
-                <prop-output target="/data/baidu/${catalog}/${subCatalog}/appattrs.sql" newline="true">
-                    INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
-                </prop-output>
-            </blocks>
-        </blocks>-->
+        </blocks>
+        <blocks select=".img_screen img">
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="src" vtype="attr"/>
+            <prop-output target="/data/muzhi/${catalog}/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+        <blocks select="#B_pl" task-ref="comment">
+            <context name="commentPageUri" select="a" attr="href" vtype="attr"/>
+        </blocks>
     </task>
 
-    <!--<task id="comment" uri="comment?action_type=getCommentList&amp;groupid=${commentId}" page-param="pn">
-        <max-page select="input[name=totalpage]" attr="value" vtype="attr" max="10"/>
-        <blocks select=".comment">
+    <task id="comment" uri="${commentPageUri}">
+        <blocks select="#comment_body>li">
             <prop name="commentId" vtype="uuid"/>
-            <prop name="user" select=".comment-info em" vtype="text"/>
-            <prop name="comment" select=".comment-info p" vtype="text"/>
-            <prop name="commentTime" select=".comment-time" vtype="text"/>
-            <prop-output target="/data/baidu/${catalog}/${subCatalog}/appcomments.sql" newline="true">
+            <prop name="user" select=".com_con .com_t" vtype="text"/>
+            <prop name="comment" select=".com_con .com_b" vtype="text"/>
+            <prop name="commentTime" subEnd=" 来自" select=".com_con .com_li .left" vtype="text"/>
+            <prop-output target="/data/muzhi/${catalog}/${subCatalog}/appcomments.sql" newline="true">
                 INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
-    </task>-->
+    </task>
 
 </tasks>
