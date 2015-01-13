@@ -112,7 +112,7 @@ trait Selector {
         if(idxs(0) != ""){
           start = (len+Integer.parseInt(idxs(0)))%len
         }
-        if(idxs(1) != ""){
+        if(idxs.length>1&&idxs(1) != ""){
           end = (len+Integer.parseInt(idxs(1)))%len
         }
         var step = 1
