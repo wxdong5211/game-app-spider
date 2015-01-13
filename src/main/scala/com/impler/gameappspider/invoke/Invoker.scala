@@ -136,13 +136,12 @@ class Invoker {
           }
         }
       }else if(task.pageVar!=null&&task.pageVar.length()!=0){
-        val maxPage = getMaxPage(task,task.maxPage.getJsonValue(json))
+        var nextMaxPage = getMaxPage(task,task.maxPage.getJsonValue(json))
         val maxThrold = task.maxPage.max
-        var max = maxThrold
-        if(max<1||max>maxPage)max = maxPage
+        var max = nextMaxPage
+        if(maxThrold>1&&maxThrold<max)max = maxThrold
         if(max>1){
-          var nextMaxPage: Int = 0
-          while(taskStart<=max){
+          while(taskStart<max){
             taskStart += 1
             context += task.pageVar -> taskStart
             uri = getUri(task)
@@ -151,7 +150,8 @@ class Invoker {
             val html: String = get(uri)
             val json: JSONObject = JSON.parseObject(getJsonSub(task,html))
             nextMaxPage = getMaxPage(task,task.maxPage.getJsonValue(json))
-            if(nextMaxPage>max&&nextMaxPage<maxThrold)max = nextMaxPage
+            if(nextMaxPage>max)max = nextMaxPage
+            if(maxThrold>1&&maxThrold<max)max = maxThrold
             task.blocks.foreach((block)=>{
               invokeJson(block,json)
             })
@@ -182,13 +182,12 @@ class Invoker {
         }
       }
     }else if(task.pageVar!=null&&task.pageVar.length()!=0){
-      val maxPage = getMaxPage(task,task.maxPage.getValue(document))
+      var nextMaxPage = getMaxPage(task,task.maxPage.getValue(document))
       val maxThrold = task.maxPage.max
-      var max = maxThrold
-      if(maxThrold<1||maxThrold>maxPage)max = maxPage
+      var max = nextMaxPage
+      if(maxThrold>1&&maxThrold<max)max = maxThrold
       if(max>1){
-        var nextMaxPage = maxPage
-        while(taskStart<=max){
+        while(taskStart<max){
           taskStart += 1
           context += task.pageVar -> taskStart
           uri = getUri(task)
@@ -197,7 +196,8 @@ class Invoker {
           val html: String = get(uri)
           val document: Document = Jsoup.parse(html)
           nextMaxPage = getMaxPage(task,task.maxPage.getValue(document))
-          if(maxThrold<1||maxThrold>maxPage)max = nextMaxPage
+          if(nextMaxPage>max)max = nextMaxPage
+          if(maxThrold>1&&maxThrold<max)max = maxThrold
           task.blocks.foreach((block)=>{
             invoke(block,document)
           })
@@ -207,7 +207,7 @@ class Invoker {
   }
 
   def getMaxPage(task: Task, maxPageStr: String): Int = {
-    if(maxPageStr==null){
+    if(maxPageStr==null||maxPageStr==""){
       return -1
     }
     var maxPage: Int = AppStringUtil.getIntAtString(maxPageStr)
