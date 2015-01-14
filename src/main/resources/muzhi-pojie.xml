@@ -14,20 +14,23 @@
         </blocks>
     </task>
 
-    <!--<task id="detail" uri="${detailPageUri}">
+    <task id="detail" uri="${detailPageUri}">
         <blocks select=".detail_info">
-            <prop name="uri" select=".inrto a" index="last" attr="href" vtype="attr"/>
-            <prop name="subCatalog" select=".inrto a" index="first" vtype="text"/>
+            <prop name="subCatalog" subStart="：" select="li" index="5" vtype="text"/>
             <prop name="version" select="#gameVersion" vtype="text"/>
             <prop name="times" select="#downCount" vtype="text"/>
             <prop name="datetime" subStart="：" select="li" index="4" vtype="text"/>
             <prop name="company" select="li a" index="last" vtype="text"/>
         </blocks>
+        <blocks select="#pop_down">
+            <prop name="uri" select=".local" attr="href" vtype="attr"/>
+            <!--http://www.muzhiwan.com prefix some-->
+        </blocks>
         <blocks select=".g_intro p" index="first">
-            &lt;!&ndash;<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>&ndash;&gt;
+            <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
             <prop name="description" vtype="text"/>
             <prop-output target="/data/muzhi/${catalog}/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`datetime`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${datetime}','${sql:description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`datetime`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${datetime}','${sql:description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select=".img_screen img">
@@ -40,9 +43,9 @@
         <blocks select="#B_pl" task-ref="comment">
             <context name="commentPageUri" select="a" attr="href" vtype="attr"/>
         </blocks>
-    </task>-->
+    </task>
 
-    <!--<task id="comment" uri="${commentPageUri}">
+    <task id="comment" uri="${commentPageUri}">
         <blocks select="#comment_body>li">
             <prop name="commentId" vtype="uuid"/>
             <prop name="user" select=".com_con .com_t" vtype="text"/>
@@ -52,6 +55,6 @@
                 INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
-    </task>-->
+    </task>
 
 </tasks>
