@@ -33,7 +33,7 @@
             <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
             <prop name="description" vtype="text"/>
             <prop-output target="/data/muzhi/${catalog}/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`datetime`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${datetime}','${sql:description}','${from}','${createTime}');
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`datetime`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${datetime}','${sql:description}','${from}','${createTime}');
             </prop-output>
         </blocks>
         <blocks select=".img_screen img">
