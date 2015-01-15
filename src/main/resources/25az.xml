@@ -2,62 +2,80 @@
 <tasks host="http://www.25az.com/" boot="catalog">
 
     <task id="catalog" uri="Android/Sort/All/Hack/0/1/">
-        <!--<blocks select=".cate>li">
-            <exclude select=".cate-head a" vtype="text">模拟辅助</exclude>
-            <prop name="catalog" select=".cate-head a" vtype="text"/>
-            <prop name="from" vtype="const" const="baidu"/>
-            <blocks select=".cate-body a" task-ref="apps">
-                <prop name="subCatalog" vtype="text"/>
-                <context name="catalogPageUri" attr="href" vtype="attr"/>
-            </blocks>
-        </blocks>-->
+        <blocks select=".list_left li" index="first" task-ref="specapps">
+            <prop name="subCatalog" select="a" vtype="text"/>
+            <prop name="catalog" vtype="const" const="破解"/>
+            <prop name="from" vtype="const" const="25az"/>
+            <context name="catalogPageUri" select="a" attr="href" vtype="attr"/>
+        </blocks>
+        <blocks select=".list_left li" task-ref="apps">
+            <exclude select="a" vtype="text">联机对战</exclude>
+            <exclude select="a" vtype="text">学习教育</exclude>
+            <exclude select="a" vtype="text">游戏工具</exclude>
+            <prop name="subCatalog" select="a" vtype="text"/>
+            <prop name="catalog" vtype="const" const="破解"/>
+            <prop name="from" vtype="const" const="25az"/>
+            <context name="catalogPageUri" select="a" attr="href" vtype="attr"/>
+        </blocks>
     </task>
 
-    <!--<task id="apps" uri="${catalogPageUri}" page-param="page_num" thread="true" new-client="true">
-        <max-page select=".pager" attr="data-total" vtype="attr"/>
-        <blocks select=".app-box" task-ref="detail">
+    <task id="specapps" uri="${catalogPageUri}hack/0/${appPageNum}/" page-var="appPageNum" thread="true" new-client="true">
+        <max-page select=".pagenav a" subStart="0/" subEnd="/" index="last" attr="href" vtype="attr"/>
+        <blocks select=".app_list li" index="1:" task-ref="detail">
             <prop name="id" vtype="uuid"/>
-            <prop name="name" select=".quickdown" attr="data_name" vtype="attr"/>
-            <prop name="logo" select=".quickdown" attr="data_icon" vtype="attr"/>
-            <prop name="version" select=".quickdown" attr="data_versionname" vtype="attr"/>
-            <prop name="uri" select=".quickdown" attr="data_url" vtype="attr"/>
-            <prop name="times" select=".app-meta .down" vtype="text"/>
-            <prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>
+            <prop name="name" subEnd=" " select="p a" vtype="text"/>
+            <prop name="logo" select="img" attr="data-original" vtype="attr"/>
+            <prop name="version" subStart=" " select="p a" vtype="text"/>
             <prop name="createTime" vtype="datetime"/>
-            <context name="detailPageUri" select=">a" attr="href" vtype="attr"/>
+            <context name="detailPageUri" select="p a" attr="href" vtype="attr"/>
         </blocks>
-    </task>-->
+    </task>
 
-    <!--<task id="detail" uri="${detailPageUri}">
-        <blocks select=".content-main" task-ref="comment">
-            <prop name="company" select=".origin" vtype="text"/>
-            <prop name="description" select=".brief-long" vtype="text"/>
-            &lt;!&ndash;<prop name="datetime" select=".name" vtype="text"/>&ndash;&gt;
-            <context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>
-            <prop-output target="/data/baidu/${catalog}/${subCatalog}/apps.sql" newline="true">
-                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`times`,`stars`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${times}','${stars}','${sql:description}','${from}','${createTime}');
+    <task id="apps" uri="${catalogPageUri}0/${appPageNum}/" page-var="appPageNum" thread="true" new-client="true">
+        <max-page select=".pagenav a" subStart="0/" subEnd="/" index="last" attr="href" vtype="attr"/>
+        <blocks select=".app_list li" index="1:" task-ref="detail">
+            <prop name="id" vtype="uuid"/>
+            <prop name="name" subEnd=" " select="p a" vtype="text"/>
+            <prop name="logo" select="img" attr="data-original" vtype="attr"/>
+            <prop name="version" subStart=" " select="p a" vtype="text"/>
+            <prop name="createTime" vtype="datetime"/>
+            <context name="detailPageUri" select="p a" attr="href" vtype="attr"/>
+        </blocks>
+    </task>
+
+    <task id="detail" uri="${detailPageUri}">
+        <blocks select=".app-msg">
+            <prop name="company" select="dd" index="5" vtype="text"/>
+            <prop name="datetime" subStart="：" select=".l" index="last" vtype="text"/>
+        </blocks>
+        <blocks select=".app_down a" index="first">
+            <prop name="uri" subStart="?" attr="href" vtype="attr"/>
+        </blocks>
+        <blocks select="#viewcontent" index="first">
+            <!--<prop name="times" select=".app-meta .down" vtype="text"/>-->
+            <!--<prop name="stars" select=".app-meta .star>span" attr="style" vtype="attr"/>-->
+            <prop name="description" select=".clearfix" vtype="text"/>
+            <!--<context name="commentId" select="input[name=groupid]" attr="value" vtype="attr"/>-->
+            <prop-output target="/data/25az/${catalog}/${subCatalog}/apps.sql" newline="true">
+                INSERT INTO `apps` (`id`,`name`,`catalog`,`subCatalog`,`logo`,`version`,`company`,`uri`,`datetime`,`description`,`from`,`createTime`) VALUES('${id}','${sql:name}','${catalog}','${subCatalog}','${logo}','${version}','${sql:company}','${uri}','${datetime}','${sql:description}','${from}','${createTime}');
             </prop-output>
-            <blocks select=".screenshot-container img">
-                <prop name="attrId" vtype="uuid"/>
-                <prop name="snap" attr="src" vtype="attr"/>
-                <prop-output target="/data/baidu/${catalog}/${subCatalog}/appattrs.sql" newline="true">
-                    INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
-                </prop-output>
-            </blocks>
         </blocks>
-    </task>-->
-
-    <!--<task id="comment" uri="comment?action_type=getCommentList&amp;groupid=${commentId}" page-param="pn">
-        <max-page select="input[name=totalpage]" attr="value" vtype="attr" max="10"/>
-        <blocks select=".comment">
+        <blocks select=".img_screen img">
+            <prop name="attrId" vtype="uuid"/>
+            <prop name="snap" attr="src" vtype="attr"/>
+            <prop-output target="/data/25az/${catalog}/${subCatalog}/appattrs.sql" newline="true">
+                INSERT INTO `appattrs` (`id`,`aid`,`snap`) VALUES('${attrId}','${id}','${snap}');
+            </prop-output>
+        </blocks>
+        <blocks select=".comment-list li">
             <prop name="commentId" vtype="uuid"/>
-            <prop name="user" select=".comment-info em" vtype="text"/>
-            <prop name="comment" select=".comment-info p" vtype="text"/>
-            <prop name="commentTime" select=".comment-time" vtype="text"/>
-            <prop-output target="/data/baidu/${catalog}/${subCatalog}/appcomments.sql" newline="true">
+            <prop name="user" subEnd="(ID" select=".first-line" vtype="text"/>
+            <prop name="comment" select=">p" vtype="text"/>
+            <prop name="commentTime" subEnd=" 应" select="time" vtype="text"/>
+            <prop-output target="/data/25az/${catalog}/${subCatalog}/appcomments.sql" newline="true">
                 INSERT INTO `appcomments`(`id`,`aid`,`user`,`comment`,`datetime`) VALUES ('${commentId}','${id}','${sql:user}','${sql:comment}','${commentTime}');
             </prop-output>
         </blocks>
-    </task>-->
+    </task>
 
 </tasks>
